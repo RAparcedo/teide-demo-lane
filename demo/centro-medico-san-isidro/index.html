@@ -29,7 +29,9 @@
             });
           });
 
-          // Scroll-reveal
+          // Scroll-reveal — fail-open: any element below the fold that the
+          // observer doesn't fire on (e.g. very last sections of the page,
+          // headless snap timing) gets revealed after a short fallback.
           if ('IntersectionObserver' in window) {
             var io = new IntersectionObserver(function (entries) {
               entries.forEach(function (e) {
@@ -38,8 +40,16 @@
                   io.unobserve(e.target);
                 }
               });
-            }, { threshold: 0.12, rootMargin: '0px 0px -10% 0px' });
+            }, { threshold: 0.04, rootMargin: '0px 0px 0px 0px' });
             document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
+            // Fail-open fallback: any [data-reveal] not yet revealed after 700ms
+            // gets revealed unconditionally. Covers headless snap timing + IO
+            // edge cases at the document end.
+            setTimeout(function () {
+              document.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function (el) {
+                el.classList.add('is-revealed');
+              });
+            }, 700);
           } else {
             document.querySelectorAll('[data-reveal]').forEach(function (el) { el.classList.add('is-revealed'); });
           }
