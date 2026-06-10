@@ -14,6 +14,12 @@
 						});
 					}, { rootMargin: '0px 0px -10% 0px', threshold: 0.14 });
 					targets.forEach(function (el) { io.observe(el); });
+					/* Safety net: guarantee every section is visible to any renderer that
+					   waits ~2s (full-page snapshots, fast programmatic scrolls). */
+					window.setTimeout(function () {
+						targets.forEach(function (el) { el.classList.add('is-revealed'); });
+						io.disconnect();
+					}, 1600);
 				}
 
 				var heroPhoto = document.querySelector('.opener__photo');
